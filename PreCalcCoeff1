@@ -1,0 +1,52 @@
+clc; clear; 
+
+% Arbitrary coefficient
+% A = 1; D = 500; 
+
+% Defining A as inversely proportional to t
+Afunc = @(x) 1./(0.01*x+1);
+t = linspace(0,200,200);
+A = Afunc(t);
+ 
+% Arbitrary time
+t = 0.001;
+
+% Define arbitrary plane
+mat = zeros(300,300);
+[row,col] = size(mat); 
+distmat = zeros(size(mat));
+
+% Define sinks and sources
+mat(row/2,col/2) = 2; 
+mat(row/2-15, col/2+15) = 1;
+
+% explicitly states indices of sinks and sources
+[srRow, srCol] = find(mat == 2);
+[snRow, snCol] = find (mat == 1);
+srMat = zeros(300,300);
+snMat = zeros(300,300); 
+
+srMat(srRow,srCol) = 1;
+snMat(snRow,snCol) = 2;
+srcDistMat(:,:) = bwdist(srMat(:,:));
+snkDistMat(:,:) = bwdist(snMat(:,:));
+
+ii = 0; 
+
+while t < 500
+    
+	ii = ii + 1; 
+
+	srcY = A(ii)/(sqrt(4*pi*D*t))*exp(-srcDistMat.^2/(4*D*t));
+	snkY = -A(1)/(sqrt(4*pi*D*t))*exp(-snkDistMat.^2/(4*D*t));
+
+	Ymat = srcY+snkY;
+	clims=[-0.001,0.001];
+
+	figure(1) 
+	imagesc(Ymat,clims)
+	colormap cool
+
+	F = getframe(figure(1));
+	t = t+0.1;
+end
